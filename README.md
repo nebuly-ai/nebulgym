@@ -114,7 +114,7 @@ cd nebulgym && python setup.py install
 
 ## Get started
 
-`nebulgym` accelerates training by means of class decorators. A class decorator is a very elegant and non-intrusive method that allows nebulgym to tag your model (`@nebulgym_model`) and your dataset (`@nebulgym_dataset`) and add functionalities to their classes. When you run a training session, `nebulgym` will greatly reduce the training time of your decorated model. As simple as that!
+`nebulgym` accelerates training by means of class decorators. A class decorator is a very elegant and non-intrusive method that allows nebulgym to tag your model (`@accelerate_model`) and your dataset (`@naccelerate_dataset`) and add functionalities to their classes. When you run a training session, `nebulgym` will greatly reduce the training time of your decorated model. As simple as that!
 
 You can find more information about `nebulgym` class decorators, the parameters they can take as input, and other `nebulgym` classes that can be used as an alternative to decorators in the [documentation](https://nebuly.gitbook.io/nebuly/nebulgym/get-started/advanced-options).
 
@@ -122,8 +122,8 @@ You can find more information about `nebulgym` class decorators, the parameters 
 
 Put nebulgym class decorators right before defining your dataset and model classes.
 
-- `@nebulgym_dataset` must be entered before the dataset definition. nebulgym will cache dataset samples in memory, so that reading these samples after the first time becomes much faster. Caching the dataset makes data loading faster and more efficient, solving what could become the main bottleneck of the whole training process.
-- `@nebulgym_model` must be entered before the model definition. nebulgym will accelerate both forward and backward propagations by reducing the number of computationally expensive propagation steps and making computations more efficient.
+- `@accelerate_dataset` must be entered before the dataset definition. nebulgym will cache dataset samples in memory, so that reading these samples after the first time becomes much faster. Caching the dataset makes data loading faster and more efficient, solving what could become the main bottleneck of the whole training process.
+- `@accelerate_model` must be entered before the model definition. nebulgym will accelerate both forward and backward propagations by reducing the number of computationally expensive propagation steps and making computations more efficient.
 
 <p align="center">
 <img width="500" src="https://user-images.githubusercontent.com/83510798/172379283-b18f75cb-1b85-4f70-91a6-d3973c593cff.gif">
