@@ -10,7 +10,7 @@
 <a href="#benchmarks">Benchmarks</a> •
 <a href="#installation">Installation</a> •
 <a href="#get-started">Get started</a> •
-<a href="#nebulgym-use-case">Tutorials and examples</a> •
+<a href="#nebulgym-use-case">Tutorials & examples</a> •
 <a href="https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions">Documentation</a>
 </p>
 
@@ -27,9 +27,9 @@ Easy-to-use library to accelerate AI training leveraging state-of-the-art optimi
 -  [How nebulgym works](#how-nebulgym-works)
 -  [Benchmarks](#benchmarks)
 -  [Tutorials and examples](#nebulgym-use-case)
--  [Installation and Get Started](#installation)
+-  [Installation & get started](#installation)
 -  <a href="https://nebuly.gitbook.io/nebuly/nebulgym/how-nebulgym-works">Documentation</a>
--  <a href="https://discord.gg/jyjtZTPyHS">Join the Community for AI Acceleration</a>
+-  <a href="https://discord.gg/jyjtZTPyHS">Join the community for AI acceleration</a>
 
 ## How nebulgym works
 
@@ -44,7 +44,7 @@ Your code + @nebulgym_class_decorators = superfast training 🏃‍♀️
 
 ### So why nebulgym?
 
-🚀 **Superfast**. The library speeds up training and thus the time it takes you to test your model, reduces computing costs and energy consumption.
+🚀 **Superfast**. The library speeds up training and thus the time to get to production, reduces computing costs and energy consumption.
 
 ☘️ **Easy-to-use**. Just add `nebulgym` class decorators to your code and continue programming on your favorite training framework. nebulgym will let you achieve awesome training times.
 
@@ -64,9 +64,9 @@ And happy training 🏋️
 
 
 ## Benchmarks
-`nebulgym` has just been launched and has been tested on limited use cases. Early results are remarkably good, and it is expected that `nebulgym` will further reduce training time even more in future releases. At the same time, it is expected that nebulgym may fail in untested cases and provide different results, perhaps greater or worse than those shown below.
+`nebulgym` has just been launched and has been tested on limited use cases. Early results are remarkably good, and it is expected that `nebulgym` will further reduce training time in future releases. At the same time, it is expected that nebulgym may fail in untested cases and provide different results, perhaps greater or worse than those shown below.
 
-We tested test has been run on the custom model presented in over 10 epochs and with a batch size of 8.
+We tested nebulgym on the custom model that you can find in the <a href="#nebulgym-use-case">example section</a>. The test consists in a training over 10 epochs and a batch size of 8.
 
 Below are the training times in seconds before `nebulgym` optimization and after its acceleration, and the speedup, which is calculated as the response time of the unoptimized model divided by the response time of the accelerated model.
 
@@ -79,13 +79,13 @@ Below are the training times in seconds before `nebulgym` optimization and after
 | **NVIDIA T4** | 258.88 | 127.32 | 2.0x |
 | ______________________ | __________________ | __________________ | __________________ |
 
-Hardware Legenda
+Hardware setup
 - M1 Pro: Apple M1 Pro 16GB of RAM
 - Intel Xeon: EC2 Instance on AWS - t2.large
 - AMD EPYC: EC2 Instance on AWS - t4a.large
 - NVIDIA T4: EC2 instance on AWS - g4dn.xlarge
 
-How does `nebulgym` perform in your training setup? What do you think about `nebulgym` and what are ways to make it even better? Share your ideas and results with us in the [community chat](https://discord.gg/RbeQMu886J).
+How does `nebulgym` perform on your training setup? What do you think about `nebulgym` and what are ways to make it even better? Share your ideas and results with us in the [community chat](https://discord.gg/RbeQMu886J).
 
 
 ## Installation
@@ -122,9 +122,9 @@ cd nebulgym && python setup.py install
 
 You can find more information about `nebulgym` class decorators, the parameters they can take as input, and other `nebulgym` classes that can be used as an alternative to decorators in the [documentation](https://nebuly.gitbook.io/nebuly/nebulgym/get-started/advanced-options).
 
-### Class decorators for training acceleration
+### How to use nebulgym class decorators
 
-Put nebulgym class decorators right before defining your dataset and model classes.
+Put `nebulgym` class decorators right before defining your dataset and model classes.
 
 - `@accelerate_dataset` must be entered before the dataset definition. nebulgym will cache dataset samples in memory, so that reading these samples after the first time becomes much faster. Caching the dataset makes data loading faster and more efficient, solving what could become the main bottleneck of the whole training process.
 - `@accelerate_model` must be entered before the model definition. nebulgym will accelerate both forward and backward propagations by reducing the number of computationally expensive propagation steps and making computations more efficient.
@@ -201,7 +201,7 @@ And that's it. Now, as soon as you perform a training run, `nebulgym` will optim
 
 `nebulgym` aims to support every framework, every model, every hardware, and make the most of your hardware and software capabilities to train your model in a fraction of the time required now. In addition, `nebulgym` will always be extremely easy to use to empower any developer to build powerful AI applications.
 
-`nebulgym` already embeds many great technologies, and below you can find a list of the features already implemented and those that will be implemented soon. More specific tasks can be found in the [issue page](https://github.com/nebuly-ai/nebulgym). 
+`nebulgym` already embeds many great technologies. Below you can find a list of the features already implemented and those that will be implemented soon. More specific tasks can be found in the [issue page](https://github.com/nebuly-ai/nebulgym). 
 
 Any ideas about what could be implemented next? Would you like to contribute to this fantastic library? We welcome any ideas, questions, issues and pull requests! For more info go to the [Documentation](https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions).
 
@@ -236,3 +236,25 @@ Any ideas about what could be implemented next? Would you like to contribute to 
 
 ## Licence
 This project is released under the [Apache 2.0 licence](https://github.com/nebuly-ai/nebulgym/blob/main/LICENSE).
+
+---
+
+<p align="center">
+  <a href="https://discord.gg/RbeQMu886J">Join the community</a> |
+  <a href="https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions">Contribute to the library</a>
+</p>
+
+<p align="center">
+<a href="#how-nebulgym-works">How nebulgym works</a> •
+<a href="#benchmarks">Benchmarks</a> •
+<a href="#installation">Installation</a> •
+<a href="#get-started">Get started</a> •
+<a href="#nebulgym-use-case">Tutorials & examples</a> •
+<a href="https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions">Documentation</a>
+</p>
+
+<p align="center">
+<a href="https://nebuly.ai/">Website</a> |
+<a href="https://www.linkedin.com/company/72460022/">LinkedIn</a> |
+<a href="https://twitter.com/nebuly_ai">Twitter</a>
+</p>
