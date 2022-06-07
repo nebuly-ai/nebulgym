@@ -12,7 +12,6 @@
 <a href="#get-started">Get started</a> •
 <a href="#nebulgym-use-case">Tutorials and examples</a> •
 <a href="https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions">Documentation</a>
-<a href="https://nebuly.gitbook.io/nebuly/nebulgym/how-nebulgym-works">Documentation</a>
 </p>
 
 <p align="center">
@@ -29,6 +28,7 @@ Easy-to-use library to accelerate AI training leveraging state-of-the-art optimi
 -  [Benchmarks](#benchmarks)
 -  [Tutorials and examples](#nebulgym-use-case)
 -  [Installation and Get Started](#installation)
+-  <a href="https://nebuly.gitbook.io/nebuly/nebulgym/how-nebulgym-works">Documentation</a>
 -  <a href="https://discord.gg/jyjtZTPyHS">Join the Community for AI Acceleration</a>
 
 ## How nebulgym works
