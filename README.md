@@ -77,7 +77,7 @@ Below are the training times in seconds before `nebulgym` optimization and after
 | **Intel Xeon** | 788.05 | 381.01 | 2.1x |
 | **AMD EPYC** | 1547.35 | 1034.37 | 1.5x |
 | **NVIDIA T4** | 258.88 | 127.32 | 2.0x |
-| ______________________ | __________________ | __________________ | __________________ |
+| __________________ | _________________ | _________________ | _________________ |
 
 Hardware setup
 - M1 Pro: Apple M1 Pro 16GB of RAM
