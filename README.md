@@ -11,6 +11,7 @@
 <a href="#installation">Installation</a> •
 <a href="#get-started">Get started</a> •
 <a href="#nebulgym-use-case">Tutorials and examples</a> •
+<a href="https://nebuly.gitbook.io/nebuly/welcome/questions-and-contributions">Documentation</a>
 <a href="https://nebuly.gitbook.io/nebuly/nebulgym/how-nebulgym-works">Documentation</a>
 </p>
 
