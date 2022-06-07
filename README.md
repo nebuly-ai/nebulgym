@@ -36,22 +36,25 @@ Easy-to-use library to accelerate AI training leveraging state-of-the-art optimi
 > `nebulgym` greatly reduces the training time of AI models without requiring any modification to the training setup. `nebulgym` optimizes the full training computing stack, from efficient data loading, to faster forward and backward passes, to earlier convergence.
 
 No matter what model, framework, or training recipe you use, with `nebulgym` you speed up training by simply adding nebulgym class decorators to your code. Decorators will make sure that you use your hardware's computing power to the fullest and achieve the shortest possible training time.
+
+<p align="center">
 Your code + @nebulgym_class_decorators = superfast training 🏃‍♀️
+</p>
 
 
 ### So why nebulgym?
 
-🚀 Superfast. The library speeds up training and thus the time it takes you to test your model, reduces computing costs and energy consumption.
+🚀 **Superfast**. The library speeds up training and thus the time it takes you to test your model, reduces computing costs and energy consumption.
 
-☘️ Easy-to-use. Just add `nebulgym` class decorators to your code and continue programming on your favorite training framework. nebulgym will let you achieve awesome training times.
+☘️ **Easy-to-use**. Just add `nebulgym` class decorators to your code and continue programming on your favorite training framework. nebulgym will let you achieve awesome training times.
 
-💥 Training setup agnostic. `nebulgym` can be coupled with any model, trainer, or other training technique to achieve a compound effect on training performance.
+💥 **Training setup agnostic**. `nebulgym` can be coupled with any model, trainer, or other training technique to achieve a compound effect on training performance.
 
-🦾 Framework agnostic. The library aims to support all frameworks (PyTorch, TensorFlow, Hugging Face, Jax, etc.) to allow any developer to continue working with the configuration they are used to. Currently, nebulgym supports PyTorch and we are working on expanding nebulgym capabilities.
+🦾 **Framework agnostic**. The library aims to support all frameworks (PyTorch, TensorFlow, Hugging Face, Jax, etc.) to allow any developer to continue working with the configuration they are used to. Currently, nebulgym supports PyTorch and we are working on expanding nebulgym capabilities.
 
-💻 Deep learning model agnostic. `nebulgym` supports all the most popular architectures such as transformers, LSTMs, CNNs and FCNs.
+💻 **Deep learning model agnostic**. `nebulgym` supports all the most popular architectures such as transformers, LSTMs, CNNs and FCNs.
 
-🤖 Hardware agnostic. The library aims to support any artificial intelligence hardware on the market, from general-purpose GPUs and CPUs to hardware accelerators such as FPGAs and ASICs. Currently, nebulgym has been tested on many CPUs and GPUs.
+🤖 **Hardware agnostic**. The library aims to support any artificial intelligence hardware on the market, from general-purpose GPUs and CPUs to hardware accelerators such as FPGAs and ASICs. Currently, nebulgym has been tested on many CPUs and GPUs.
 
 Do you like the library? Leave a ⭐ if you enjoy the project and join [the community](https://discord.gg/RbeQMu886J) where we chat about `nebulgym` and AI acceleration.
 
