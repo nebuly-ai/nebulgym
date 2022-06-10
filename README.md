@@ -118,7 +118,7 @@ cd nebulgym && python setup.py install
 
 ## Get started
 
-`nebulgym` accelerates training by means of class decorators. A class decorator is a very elegant and non-intrusive method that allows nebulgym to tag your model (`@accelerate_model`) and your dataset (`@naccelerate_dataset`) and add functionalities to their classes. When you run a training session, `nebulgym` will greatly reduce the training time of your decorated model. As simple as that!
+`nebulgym` accelerates training by means of class decorators. A class decorator is a very elegant and non-intrusive method that allows nebulgym to tag your model (`@accelerate_model`) and your dataset (`@accelerate_dataset`) and add functionalities to their classes. When you run a training session, `nebulgym` will greatly reduce the training time of your decorated model. As simple as that!
 
 You can find more information about `nebulgym` class decorators, the parameters they can take as input, and other `nebulgym` classes that can be used as an alternative to decorators in the [documentation](https://nebuly.gitbook.io/nebuly/nebulgym/get-started/advanced-options).
 
