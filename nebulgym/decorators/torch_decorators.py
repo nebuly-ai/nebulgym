@@ -61,7 +61,7 @@ def _patch_module_init(
     return cls
 
 
-def accelerate_model(patch_backprop: bool = False, **nebulgym_kwargs):
+def accelerate_model(patch_backprop: bool = True, **nebulgym_kwargs):
     """Function that may be used as class decorator. The decorator patches
     the input class, modifying the __init__, __call__, train and eval methods.
     The modified version switches the backend of the calculations to the

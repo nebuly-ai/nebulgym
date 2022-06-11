@@ -56,7 +56,11 @@ class TrainingLearner:
         logger: Logger = None,
         extend: bool = True,
     ):
-        backends = [NebulgymBackend(b) for b in backends] if backends else []
+        backends = (
+            [NebulgymBackend(b) for b in backends]
+            if backends
+            else [NebulgymBackend.TORCHSCRIPT]
+        )
         self._backend_engines = (
             {
                 b: engine
