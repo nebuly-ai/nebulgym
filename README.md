@@ -58,7 +58,9 @@ Your code + @nebulgym_class_decorators = superfast training 🏃‍♀️
 
 Do you like the library? Leave a ⭐ if you enjoy the project and join [the community](https://discord.gg/RbeQMu886J) where we chat about `nebulgym` and AI acceleration.
 
-And happy training 🏋️
+And learn about the [**technology behind nebulgym**](https://app.gitbook.com/o/xr3lOxgr6Fgqq1E84yOs/s/Ofr7q1XcUfo7iYMV6A0C/nebulgym/how-nebulgym-works/supported-tech-and-roadmap) in the documentation!
+
+Happy training 🏋️
 
 <img src="https://user-images.githubusercontent.com/83510798/172376401-88930367-5d1d-41c8-a617-57c628d09fdc.png">
 
