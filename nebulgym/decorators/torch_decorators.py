@@ -4,6 +4,7 @@ import torch.nn
 from torch.utils.data import Dataset
 
 from nebulgym.data.nebuly_dataset import NebulDataset
+from nebulgym.patches.pytorch.gist import gist_modify_network
 from nebulgym.patches.pytorch.meprop_linear import patch_backward_pass
 from nebulgym.training_learners.base import TrainingLearner
 
@@ -43,12 +44,18 @@ def _patch_module_train_and_eval(cls: Type[torch.nn.Module]):
 
 
 def _patch_module_init(
-    cls: Type[torch.nn.Module], patch_backprop: bool, **nebulgym_kwargs
+    cls: Type[torch.nn.Module],
+    patch_backprop: bool,
+    patch_with_gist: bool,
+    **nebulgym_kwargs
 ):
     prev_init = cls.__init__
 
     def _new_init(self: torch.nn.Module, *args, **kwargs):
         prev_init(self, *args, **kwargs)
+
+        if patch_with_gist:
+            self = gist_modify_network(self)
         if patch_backprop:
             self = patch_backward_pass(self)
         setattr(
@@ -61,7 +68,9 @@ def _patch_module_init(
     return cls
 
 
-def accelerate_model(patch_backprop: bool = True, **nebulgym_kwargs):
+def accelerate_model(
+    patch_backprop: bool = True, reduce_memory: bool = False, **nebulgym_kwargs
+):
     """Function that may be used as class decorator. The decorator patches
     the input class, modifying the __init__, __call__, train and eval methods.
     The modified version switches the backend of the calculations to the
@@ -73,6 +82,9 @@ def accelerate_model(patch_backprop: bool = True, **nebulgym_kwargs):
             affect the model final performance. However, they usually lead to
             a similar effect to dropout: the network regularization, i.e.
             better performance.
+        reduce_memory (bool, optional): Boolean flag. If activated the model
+            will be optimized trying to reduce the memory footprint, allowing
+            the usage of a larger batch_size. Default False.
         **nebulgym_kwargs (Dict): Extra parameters that must be passed to the
             TrainingLearner. See the TrainingLearner description for further
             information.
@@ -84,7 +96,9 @@ def accelerate_model(patch_backprop: bool = True, **nebulgym_kwargs):
     def _inner_patch(cls: Type[torch.nn.Module]):
         if cls.__call__ is _new_module_call:  # class already patched
             return cls
-        cls = _patch_module_init(cls, patch_backprop, **nebulgym_kwargs)
+        cls = _patch_module_init(
+            cls, patch_backprop, reduce_memory, **nebulgym_kwargs
+        )
         cls = _patch_module_call(cls)
         cls = _patch_module_train_and_eval(cls)
         return cls
