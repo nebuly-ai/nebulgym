@@ -1,8 +1,9 @@
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import torch
 import torch.nn.grad
 import torch.nn.functional as F
+from torch.autograd.graph import saved_tensors_hooks
 from torch.nn.modules.utils import _pair
 
 
@@ -13,59 +14,17 @@ class ReLUFunction(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, x: torch.Tensor):
-        y = F.relu(x)
-        binary = y.bool()
-        ctx.save_for_backward(binary)
-        return y
+        with torch.no_grad():
+            y = F.relu(x)
+            binary = y.bool()
+            ctx.save_for_backward(binary)
+            return y
 
     @staticmethod
     def backward(ctx, dy: torch.Tensor):
-        binary = ctx.saved_tensors[0]
-        return dy * binary
-
-
-class PostReLUConv2dFunction(torch.autograd.Function):
-    @staticmethod
-    def jvp(ctx: Any, *grad_inputs: Any) -> Any:
-        pass
-
-    @staticmethod
-    def forward(cxt, input, weight, bias, stride, padding, dilation, groups):
-        cxt.save_for_backward(
-            input.view(-1, input.shape[-1]).to_sparse_csr(), weight, bias
-        )
-        # cxt.save_for_backward(input.to_sparse_coo(), weight, bias)
-        return F.conv2d(input, weight, bias, stride, padding, dilation, groups)
-
-    @staticmethod
-    def backward(cxt, grad_output):
-        input, weight, bias = cxt.saved_tensors
-        input = input.to_dense().view(
-            grad_output.shape[0],
-            weight.shape[1],
-            -1,
-            input.shape[1],
-        )
-        # input = input.to_dense()
-        grad_input = grad_weight = grad_bias = None
-
-        if cxt.needs_input_grad[0]:
-            grad_input = torch.nn.grad.conv2d_input(
-                input.shape, weight, grad_output
-            )
-
-        if cxt.needs_input_grad[1]:
-            grad_weight = torch.nn.grad.conv2d_weight(
-                input, weight.shape, grad_output
-            )
-
-        if bias is not None and cxt.needs_input_grad[2]:
-            grad_bias = grad_output.sum((0, 2, 3)).squeeze(0)
-
-        if bias is not None:
-            return grad_input, grad_weight, grad_bias, None, None, None, None
-        else:
-            return grad_input, grad_weight, None, None, None, None, None
+        with torch.no_grad():
+            binary = ctx.saved_tensors[0]
+            return dy * binary
 
 
 def _compute_quantization_stats(input):
@@ -74,168 +33,7 @@ def _compute_quantization_stats(input):
     return scale, q
 
 
-class QuantizedConv2dFunction(torch.autograd.Function):
-    @staticmethod
-    def jvp(ctx: Any, *grad_inputs: Any) -> Any:
-        pass
-
-    @staticmethod
-    def forward(
-        cxt: Any,
-        input: torch.Tensor,
-        weight: torch.Tensor,
-        bias: Optional[torch.Tensor],
-        stride: int,
-        padding: int,
-        dilation: int,
-        groups: int,
-    ):
-        scale, q = _compute_quantization_stats(input)
-        cxt.save_for_backward(
-            torch.quantize_per_tensor(input, scale, q, dtype=torch.qint8),
-            weight,
-            bias,
-        )
-        return F.conv2d(input, weight, bias, stride, padding, dilation, groups)
-
-    @staticmethod
-    def backward(cxt, grad_output):
-        input, weight, bias = cxt.saved_tensors
-
-        input = torch.dequantize(input)
-        grad_input = grad_weight = grad_bias = None
-
-        if cxt.needs_input_grad[0]:
-            grad_input = torch.nn.grad.conv2d_input(
-                input.shape, weight, grad_output
-            )
-
-        if cxt.needs_input_grad[1]:
-            # grad_weight = torch.nn.grad.conv2d_weight(
-            #     input, weight.shape, grad_output
-            # )
-            # grad_weight = conv2d_weight(input, weight.shape, grad_output)
-            grad_weight = F.conv2d(
-                input.transpose(0, 1), grad_output.transpose(0, 1)
-            ).transpose(0, 1)
-
-        if bias is not None and cxt.needs_input_grad[2]:
-            grad_bias = grad_output.sum((0, 2, 3)).squeeze(0)
-
-        if bias is not None:
-            return grad_input, grad_weight, grad_bias, None, None, None, None
-        else:
-            return grad_input, grad_weight, None, None, None, None, None
-
-
-class QuantizedLinearFunction(torch.autograd.Function):
-    @staticmethod
-    def jvp(ctx: Any, *grad_inputs: Any) -> Any:
-        pass
-
-    @staticmethod
-    def forward(
-        ctx: Any,
-        input_tensor: torch.Tensor,
-        weights: torch.Tensor,
-        bias: Optional[torch.Tensor],
-    ) -> torch.Tensor:
-        scale, q = _compute_quantization_stats(input_tensor)
-        ctx.save_for_backward(
-            torch.quantize_per_tensor(input_tensor, scale, q, torch.qint8),
-            weights,
-            bias,
-        )
-        return F.linear(input_tensor, weights, bias)
-
-    @staticmethod
-    def backward(
-        ctx: Any, grad_output: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor]]:
-        q_input, weight, bias = ctx.saved_tensors
-        input = torch.dequantize(q_input)
-        grad_input = grad_weight = grad_bias = None
-
-        if ctx.needs_input_grad[0]:
-            grad_input = torch.matmul(grad_output, weight)
-        if ctx.needs_input_grad[1]:
-            grad_weight = torch.matmul(grad_output.t(), input)
-        if bias is not None and ctx.needs_input_grad[2]:
-            grad_bias = grad_output.reshape(-1, grad_output.shape[-1]).sum(0)
-
-        return grad_input, grad_weight, grad_bias
-
-
-class QuantizedGistBatchNormFunc(torch.autograd.Function):
-    @staticmethod
-    def jvp(ctx: Any, *grad_inputs: Any) -> Any:
-        pass
-
-    @staticmethod
-    def forward(
-        ctx,
-        input,
-        running_mean,
-        running_var,
-        weight,
-        bias,
-        bn_training,
-        exponential_average_factor,
-        eps,
-    ):
-        with torch.no_grad():
-            scale, q = _compute_quantization_stats(input)
-            ctx.save_for_backward(
-                torch.quantize_per_tensor(input, scale, q, dtype=torch.qint8),
-                weight,
-                bias,
-                eps,
-            )
-            return F.batch_norm(
-                input,
-                running_mean,
-                running_var,
-                weight,
-                bias,
-                bn_training,
-                exponential_average_factor,
-                eps,
-            )
-
-    @staticmethod
-    def backward(ctx: Any, grad_output: torch.Tensor) -> Tuple[Any]:
-        input, weight, bias, eps = ctx.saved_tensors
-        input = input.to_dense()
-        input_grad = weight_grad = bias_grad = None
-        mu = torch.mean(input, dim=(0, 2, 3), keepdim=True)
-        inv_sqrt = 1 / torch.sqrt(
-            torch.mean(
-                torch.square(input) - torch.square(mu),
-                dim=(0, 2, 3),
-                keepdim=True,
-            )
-            + eps
-        )
-        x_hat = (input - mu) * inv_sqrt
-        if ctx.needs_input_grad[0]:
-            shape = input.shape
-            M = shape[0] * shape[2] * shape[3]
-            dx_hat_dx = (1 - 1 / M) * inv_sqrt - (
-                input - mu / M
-            ) * x_hat * torch.square(inv_sqrt)
-            input_grad = weight * grad_output * dx_hat_dx
-        if ctx.needs_input_grad[3]:
-            weight_grad = torch.sum(grad_output * x_hat, dim=(0, 2, 3))
-        if ctx.needs_input_grad[4]:
-            bias_grad = torch.sum(grad_output, dim=(0, 2, 3))
-        return input_grad, None, None, weight_grad, bias_grad, None, None, None
-
-
 relu_func = ReLUFunction.apply
-post_relu_conv_func = PostReLUConv2dFunction.apply
-quantized_conv_func = QuantizedConv2dFunction.apply
-quantized_linear_func = QuantizedLinearFunction.apply
-quantized_batchnorm_func = QuantizedGistBatchNormFunc.apply
 
 
 class GistReLU(torch.nn.ReLU):
@@ -243,42 +41,38 @@ class GistReLU(torch.nn.ReLU):
         return relu_func(x)
 
 
-class GistPostReLUConv2d(torch.nn.Conv2d):
-    def _conv_forward(
-        self,
-        input: torch.Tensor,
-        weight: torch.Tensor,
-        bias: Optional[torch.Tensor],
-    ):
-        if self.padding_mode != "zeros":
-            return post_relu_conv_func(
-                F.pad(
-                    input,
-                    self._reversed_padding_repeated_twice,
-                    mode=self.padding_mode,
-                ),
-                weight,
-                bias,
-                self.stride,
-                _pair(0),
-                self.dilation,
-                self.groups,
-            )
-        return post_relu_conv_func(
-            input,
-            weight,
-            bias,
-            self.stride,
-            self.padding,
-            self.dilation,
-            self.groups,
-        )
+def _quantize_input(input):
+    scale, q = _compute_quantization_stats(input)
+    input = torch.quantize_per_tensor(input, scale, q, dtype=torch.qint8)
+    return input
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self._conv_forward(input, self.weight, self.bias)
+
+def _dequantize_input(input):
+    return input.dequantize()
+
+
+class InputQuantizationPackingState:
+    def __init__(self):
+        self._state = 0
+
+    def pack_hook(self, packed_tensor):
+        if self._state == 0:
+            self._state += 1
+            return _quantize_input(packed_tensor)
+        return packed_tensor
+
+    def unpack_hook(self, packed_tensor):
+        if self._state > 0:
+            self._state = 0
+            return _dequantize_input(packed_tensor)
+        return packed_tensor
 
 
 class GistQuantizedConv2d(torch.nn.Conv2d):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_quantization_packing = InputQuantizationPackingState()
+
     def _conv_forward(
         self,
         input: torch.Tensor,
@@ -286,7 +80,7 @@ class GistQuantizedConv2d(torch.nn.Conv2d):
         bias: Optional[torch.Tensor],
     ):
         if self.padding_mode != "zeros":
-            return quantized_conv_func(
+            return F.conv2d(
                 F.pad(
                     input,
                     self._reversed_padding_repeated_twice,
@@ -299,7 +93,7 @@ class GistQuantizedConv2d(torch.nn.Conv2d):
                 self.dilation,
                 self.groups,
             )
-        return quantized_conv_func(
+        return F.conv2d(
             input,
             weight,
             bias,
@@ -310,15 +104,31 @@ class GistQuantizedConv2d(torch.nn.Conv2d):
         )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self._conv_forward(input, self.weight, self.bias)
+        with saved_tensors_hooks(
+            self.input_quantization_packing.pack_hook,
+            self.input_quantization_packing.unpack_hook,
+        ):
+            return self._conv_forward(input, self.weight, self.bias)
 
 
 class GistQuantizedLinear(torch.nn.Linear):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_quantization_packing = InputQuantizationPackingState()
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return quantized_linear_func(input, self.weight, self.bias)
+        with saved_tensors_hooks(
+            self.input_quantization_packing.pack_hook,
+            self.input_quantization_packing.unpack_hook,
+        ):
+            return F.linear(input, self.weight, self.bias)
 
 
 class GistQuantizedBatchNorm2d(torch.nn.BatchNorm2d):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.input_quantization_packing = InputQuantizationPackingState()
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         self._check_input_dim(input)
 
@@ -348,27 +158,30 @@ class GistQuantizedBatchNorm2d(torch.nn.BatchNorm2d):
             bn_training = (self.running_mean is None) and (
                 self.running_var is None
             )
-
-        return quantized_batchnorm_func(
-            input,
-            # If buffers are not to be tracked, ensure that they won't
-            # be updated
-            self.running_mean
-            if not self.training or self.track_running_stats
-            else None,
-            self.running_var
-            if not self.training or self.track_running_stats
-            else None,
-            self.weight,
-            self.bias,
-            bn_training,
-            exponential_average_factor,
-            self.eps,
-        )
+        with saved_tensors_hooks(
+            self.input_quantization_packing.pack_hook,
+            self.input_quantization_packing.unpack_hook,
+        ):
+            return F.batch_norm(
+                input,
+                # If buffers are not to be tracked, ensure that they won't
+                # be updated
+                self.running_mean
+                if not self.training or self.track_running_stats
+                else None,
+                self.running_var
+                if not self.training or self.track_running_stats
+                else None,
+                self.weight,
+                self.bias,
+                bn_training,
+                exponential_average_factor,
+                self.eps,
+            )
 
 
 def gist_modify_network(module: torch.nn.Module):
-    if isinstance(module, torch.nn.Linear):
+    if False and isinstance(module, torch.nn.Linear):
         new_module = GistQuantizedLinear(
             module.in_features,
             module.out_features,
@@ -377,7 +190,7 @@ def gist_modify_network(module: torch.nn.Module):
         )
         new_module.weight = module.weight
         new_module.bias = module.bias
-    elif isinstance(module, torch.nn.Conv2d):
+    elif False and isinstance(module, torch.nn.Conv2d):
         new_module = GistQuantizedConv2d(
             module.in_channels,
             module.out_channels,
@@ -393,6 +206,16 @@ def gist_modify_network(module: torch.nn.Module):
         new_module.bias = new_module.bias
     elif isinstance(module, torch.nn.ReLU):
         new_module = GistReLU(inplace=module.inplace)
+    elif isinstance(module, torch.nn.BatchNorm2d):
+        new_module = GistQuantizedBatchNorm2d(
+            module.num_features,
+            module.eps,
+            module.momentum,
+            module.affine,
+            module.track_running_stats,
+        )
+        new_module.weight = module.weight
+        new_module.bias = module.bias
     else:
         named_children = list(module.named_children())
         if len(named_children) > 0:
